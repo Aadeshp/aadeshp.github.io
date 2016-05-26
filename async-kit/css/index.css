@@ -111,7 +111,7 @@ p {
     /*float: left;*/
     display: inline-block;
     vertical-align: top;
-    width: 49.7%; }
+    width: 49%; }
     #docs .split-left code, #docs .split-right code {
       word-wrap: break-word; }
     #docs .split-left ul, #docs .split-right ul {
@@ -140,10 +140,12 @@ table, th, td {
   table th, table td {
     padding: 15px; }
   table th {
+      overflow-x: auto;
       font-family: "Raleway-Light", sans-serif;
       font-weight: bold;
       font-size: 25px; }
   table tr td {
+      overflow-x: auto;
       height: 30px;
       vertical-align: middle;
       font-family: "Raleway-Regular", sans-serif;
