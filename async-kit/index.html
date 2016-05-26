@@ -151,6 +151,8 @@ func fetchDataAsync() -> Task&lt;NSData&gt; {
 
         manager.complete(ret)
     }
+
+    return manager.task
 }
 ...
 fetchDataAsync().then { data in
@@ -165,14 +167,13 @@ fetchDataAsync().then { data in
 
                 <div class="split" style="margin-top: 20px;">
                     <div class="split-left">
-                        <pre><code class="language-swift">...
-UIApplication.sharedApplication().networkActivityIndicatorVisible = true
+                        <pre><code class="language-swift">activityIndicator.startAnimating()
 fetchDataAsync().then { data in
     // Handle data
 }.error { (error: NSError) in
     // Handle error
 }.finally {
-    UIApplication.sharedApplication().networkActivityIndicatorVisible = false
+    activityIndicator.stopAnimating()
 }</code></pre>
                     </div>
                     <div class="split-right" style="text-align: center;">
