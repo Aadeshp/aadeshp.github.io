@@ -254,7 +254,35 @@ fetchDataAsync().then(.Main) {
                     <pre><code class="language-swift">Task.join(fetchAndLoadTableAsync(), fetchAndLoadImagesAsync()).then {
     // This block executes only if all the tasks sent to the Task.join function complete successfully
 }</code></pre>
-            </div>
+                </div>
+
+                <div id="task-wrapper">
+                    <h3 class="doc-sub-header">Task Wrapper</h3>
+                    <p class="doc-desc">AsyncKit also provides you with a <block>Task</block> wrapper function called <block>task</block>. The <block>task</block> function accepts a block as its only parameter, which is executed asynchronously. The return value of the <block>task</block> function is a <block>Task</block> object.</p>
+                    <pre><code class="language-swift">...
+enum LoginError: ErrorType {
+    case InvalidCredentials
+}
+
+task { () throws in
+    // The contents of this block will be executed asynchronously in a default priority global queue
+
+    let success = self.login(username, password)
+    if (!success) {
+        throw LoginError.InvalidCredentials
+    }
+
+    var ret: AnyObject? = nil
+    // Fetch other data...
+
+    return ret
+}.then { ret in
+    // Handle result of the task wrapped code
+}.error { (error: ErrorType) in
+    // Handle ErrorType (in this case, InvalidCredentials)
+}
+...</code></pre>
+                </div>
         </div>
     </body>
 </html>
