@@ -1,0 +1,258 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <title>AsyncKit</title>
+        <link rel="stylesheet" href="css/index.css" />
+        <link rel="stylesheet" href="css/prism.css" />
+    </head>
+
+    <body>
+        <script src="js/prism.js"></script>
+
+        <div id="header">
+            <div id="content">
+                <a id="title" href="/">AsyncKit</a>
+
+                <nav>
+                    <ul>
+                        <li><a href="https://github.com/Aadeshp/AsyncKit">Github</a></li>
+                        <li><a href="#docs">Docs</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+
+        <div id="docs" style="margin-top: 0px;">
+            <div id="installation">
+                <h3 class="doc-header">Installation</h3>
+                <div id="cocoapods">
+                    <h6 class="doc-sub-header">CocoaPods (Dependency Manager)</h6>
+                    <p class="doc-desc">You'll first need install CocoaPods:</p>
+                    <code class="language-bash">$ gem install cocoapods</code>
+                    <p class="doc-desc">Now you'll need to set up CocoaPods for your existing xcode project. Change the working directory to your xcode project's root directory and then:</p>
+                    <code class="language-bash">$ touch Podfile</code>
+                    <p class="doc-desc">Then open the <block>Podfile</block> file open, and add the following contents:</p>
+                    <pre><code>source 'https://github.com/CocoaPods/Specs.git'
+platform :ios, '8.0'
+
+pod 'AsyncKit'</code></pre>
+                    <p class="doc-desc">Then run the following command, which will install the AsyncKit library into your existing xcode project</p>
+                    <code class="language-bash">$ pod install</code>
+                </div>
+                <div id="manual">
+                    <h6 class="doc-sub-header">Manually Add Library</h6>
+                    <p class="doc-desc">Another integration option is to manually add ConstraintKit to your xcode project, by cloning from github and dragging/dropping into your xcode project:</p>
+                    <code class="language-bash">$ git clone ...</code>
+                </div>
+            </div>
+
+            <div id="usage">
+                <h3 class="doc-header">How To Use</h3>
+                <div id="basic">
+                    <h6 class="doc-sub-header">Basic Example</h6>
+                    <p class="doc-desc">AsyncKit brings the power of promises/futures to iOS development in the form of <block>Tasks</block></p>
+                    <p class="doc-desc" style="padding-top: 0;">To build a responsive iOS application, you would need to run network and long operations asynchronously within a background thread to prevent it from slowing the main (UI) thread down. <block>AsyncKit</block> aims to make this easier by allowing asynchronous operations to return a value when it is completed. An asynchronous function would return a <block>Task</block> object which can be processed using <block>then</block> and <block>error</block> methods on the <block>Task</block> object.</p>
+                    <p class="doc-desc" style="padding-top: 0;">There are only two core classes: <block>Task</block> and <block>TaskManager</block>. <block>TaskManager</block> handles it's underlying <block>Task</block> object, thus you should always use <block>TaskManager</block> and never use <block>Task</block> directly.</p>
+                    <table>
+                        <tr>
+                            <th><block>TaskManager</block> Completion Method</th>
+                            <th><block>Task</block> Handler Method</th>
+                            <th>Note</th>
+                        </tr>
+                        <tr>
+                            <td><block>complete</block></td>
+                            <td><block>then</block></td>
+                            <td>If asynchronous operation was successful</td>
+                        </tr>
+                        <tr>
+                            <td><block>completeWithError</block></td>
+                            <td><block>error((NSError) -> Void)</block></td>
+                            <td>If asynchronous operation failed with a <block>NSError</block> object</td>
+                        </tr>
+                        <tr>
+                            <td><block>completeWithException</block></td>
+                            <td><block>error((NSException) -> Void)</block></td>
+                            <td>If asynchronous operation failed with a <block>NSException</block> object</td>
+                        </tr>
+                    </table>
+                    <div class="split" style="margin-top: 20px;">
+                        <div class="split-left">
+                            <pre><code class="language-swift">...
+func fetchDataAsync() -> Task&lt;NSData&gt; {
+    let manager = TaskManager&lt;NSData&gt;()
+
+    dispatch_async(backgroundQueue) {
+        // Fetches data
+        manager.complete(data)
+    }
+
+    return manager.task
+}
+...
+fetchDataAsync().then { data in
+    // Handle data here
+}
+...</code></pre>
+                        </div>
+                        <div class="split-right" style="text-align: center;">
+                            <p class="doc-desc" style="font-size: 25px;"><block>then</block> Method</p>
+                            <div class="horizontal-line"></div>
+                            <ul>
+                                <li>
+                                    <p class="doc-desc">The parameter <block>data</block>in the <block>then</block> block is the result of the asychronous function <block>fetchDataAsync()</block>.</p>
+                                </li>
+                                <li>
+                                    <p class="doc-desc">The <block>then</block> block on a <block>Task</block> executes only if the task is <strong style="font-weight: bold;">completed successfully</strong>, which will be discussed in more detail further down.</p>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="split" style="margin-top: 20px;">
+                        <div class="split-left" style="text-align: center;">
+                            <p class="doc-desc" style="font-size: 25px;"><block>error</block> Method</p>
+                            <div class="horizontal-line"></div>
+                            <ul>
+                                <li>
+                                    <p class="doc-desc">The <block>error</block> block on a <block>Task</block> executes only if the task <strong style="font-weight: bold;">failed</strong>.</p>
+                                </li>
+                                <li>
+                                    <p class="doc-desc">There are two types of <block>error</block> blocks, one for handling <block>NSError</block> and another for handling <block>NSException</block></p>
+                                </li>
+                            </ul>
+                            <!--<table style="margin-top: 20px;">
+                                <tr>
+                                    <th>Type of Error</th>
+                                    <th>Manager Complete Method</th>
+                                </tr>
+                                <tr>
+                                    <td>NSError</td>
+                                    <td>completeWithError(NSError)</td>
+                                </tr>
+                                <tr>
+                                    <td>NSException</td>
+                                    <td>completeWithException(NSException)</td>
+                                </tr>
+                            </table>-->
+                        </div>
+                        <div class="split-right">
+                            <pre><code class="language-swift">...
+func fetchDataAsync() -> Task&lt;NSData&gt; {
+    let manager = TaskManager&lt;NSData&gt;()
+
+    dispatch_async(backgroundQueue) {
+        let (data, error) = fetchData()
+
+        guard let ret = data where error == nil else {
+            manager.completeWithError(error)
+            return
+        }
+
+        manager.complete(ret)
+    }
+}
+...
+fetchDataAsync().then { data in
+    // Handle data here if successfully fetched data
+}.error { (error: NSError) in
+    // Handle error here if data fetching failed
+}
+...</code></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="split" style="margin-top: 20px;">
+                    <div class="split-left">
+                        <pre><code class="language-swift">...
+UIApplication.sharedApplication().networkActivityIndicatorVisible = true
+fetchDataAsync().then { data in
+    // Handle data
+}.error { (error: NSError) in
+    // Handle error
+}.finally {
+    UIApplication.sharedApplication().networkActivityIndicatorVisible = false
+}</code></pre>
+                    </div>
+                    <div class="split-right" style="text-align: center;">
+                        <p class="doc-desc" style="font-size: 25px;"><block>finally</block> Method</p>
+                        <div class="horizontal-line"></div>
+                        <ul>
+                            <li>
+                            <p class="doc-desc">The <block>finally</block> block will <strong style="font-weight: bold;">always</strong> be executed, after the task completes, regardless of the outcome of the task</p>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div id="chaining">
+                    <h3 class="doc-sub-header">Chaining</h3>
+                    <p class="doc-desc">AsyncKit also allows you to chain <block>then</block> blocks without having to nest them within one another.</p>
+                    <pre><code class="language-swift">...
+fetchDataAsync().then { data in
+    // Handle data
+    return fetchUserAsync()
+}.then { user in
+    // Update user
+    return saveUserAsync()
+}.then { updatedUser in
+    // Handle updated user
+}
+...</code></pre>
+                    <div class="note">
+                        <p class="note-header">NOTE</p>
+                        <p>
+                            The order of chained <block>then</block> blocks will be preserved when being executed. For the above example, <block>fetchUserAsync()</block> will only be executed after <block>fetchDataAsync()</block> is completed successfully and <block>saveUserAsync()</block> will only be executed after <block>fetchUserAsync()</block> is completed successfully.
+                        </p>
+                    </div>
+                </div>
+
+                <div id="executors">
+                    <h3 class="doc-sub-header">Executors</h3>
+                    <p class="doc-desc">The <block>then</block> function also takes an optional parameter, <block>ExecutorType</block>. The <block>ExecutorType</block> determines what thread the <block>then</block> block runs in. The default <block>ExecutorType</block> is the <block>Current</block> thread, which refers to the thread in which the <block>TaskManager</block> completed it's task in.</p>
+                    <table style="margin-bottom: 20px;">
+                        <tr>
+                            <th><block>ExecutorType</block></th>
+                            <th>Details</th>
+                        </tr>
+                        <tr>
+                            <td><block>.Current</block></td>
+                            <td>The thread in which the <block>TaskManager</block> completed it's task in.</td>
+                        </tr>
+                        <tr>
+                            <td><block>.Main</block></td>
+                            <td>The main thread A.K.A. <block>dispatch_get_main_queue()</block></td>
+                        </tr>
+                        <tr>
+                            <td><block>.Async</block></td>
+                            <td style="overflow-x: auto;">The default priority global thread A.K.A. <block>dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)</block></td>
+                        </tr>
+                        <tr>
+                            <td><block>.Queue(dispatch_queue_t)</block></td>
+                            <td>Custom thread provided</td>
+                        </tr>
+                    </table>
+                    <pre><code class="language-swift">// The then block will run in the main thread (where UI related operations should be ran)
+fetchDataAsync().then(.Main) {
+    let alertController = UIAlertController(title: "Completed", message: "Fetched Data Successfully", preferredStyle: .Alert)
+    let okAction = UIAlertAction(title: "OK", style: .Cancel) { action in 
+        // ...
+    }
+    alertController.addAction(okAction)
+
+    self.presentViewController(alertController, animated: true) {
+        // ...
+    }
+}</code></pre>
+                </div>
+
+                <div id="parallel">
+                    <h3 class="doc-sub-header">Running Multiple Tasks in Parallel</h3>
+                    <p class="doc-desc">AsyncKit also allows you to run multiple <block>tasks</block> parallel to one another using the <block>Task.join</block> function</p>
+                    <pre><code class="language-swift">Task.join(fetchAndLoadTableAsync(), fetchAndLoadImagesAsync()).then {
+    // This block executes only if all the tasks sent to the Task.join function complete successfully
+}</code></pre>
+            </div>
+        </div>
+    </body>
+</html>
